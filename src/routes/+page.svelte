@@ -25,13 +25,26 @@
 
 	const defaultOptionsForEachDate: string[] = ['朝コマ', '昼コマ', '夜コマ'];
 
+	let formValues = $state({
+		period: {
+			startDate: '',
+			endDate: ''
+		},
+		days: defaultCheckedDayKeys,
+		holiday: defaultCheckedHolidayKey as (typeof holidayKeyTitle)[number][0],
+		optionsForEachDate: defaultOptionsForEachDate.join('\n')
+	});
+	$effect(() => {
+		console.log({ days: JSON.stringify(formValues.days) });
+	});
+	let result = $state('');
+
+	let resultTextArea = $state() as HTMLTextAreaElement;
+
 	let marked = $state(false);
 	let copied = $state(false);
 	onMount(() => {
 		marked = true;
-
-		(document.getElementById('optionsForEachDate') as HTMLTextAreaElement).value =
-			defaultOptionsForEachDate.join('\n');
 	});
 </script>
 
@@ -39,7 +52,7 @@
 	<div class="description">
 		<h1 class:marked>候補くん</h1>
 
-		<p>出欠表作成サービス「調整さん」の<span class="ochame">勝手</span>姉妹サービス。</p>
+		<p>出欠表作成サービス「調整さん」の<span class="ochame">非公式</span>姉妹サービス。</p>
 		<p>日程候補の作成をお手伝いします！</p>
 	</div>
 
@@ -48,9 +61,19 @@
 
 		<h4>期間</h4>
 		<div class="period-container">
-			<input class="form-control" type="date" name="period-start-date" />
+			<input
+				class="form-control"
+				type="date"
+				name="period-start-date"
+				bind:value={formValues.period.startDate}
+			/>
 			<span>～</span>
-			<input class="form-control" type="date" name="period-end-date" />
+			<input
+				class="form-control"
+				type="date"
+				name="period-end-date"
+				bind:value={formValues.period.endDate}
+			/>
 		</div>
 
 		<h4>曜日</h4>
@@ -62,8 +85,10 @@
 						type="checkbox"
 						role="switch"
 						name="date-{dayKey}"
+						value={dayKey}
 						id="date-{dayKey}"
 						checked={defaultCheckedDayKeys.includes(dayKey)}
+						bind:group={formValues.days}
 					/>
 					<label class="form-check-label" for="date-{dayKey}">{dayTitle}</label>
 				</div>
@@ -81,6 +106,7 @@
 						id="holiday{capitalizeFirstLetter(key)}"
 						value={key}
 						checked={defaultCheckedHolidayKey === key}
+						bind:group={formValues.holiday}
 					/>
 					<label class="form-check-label" for="holiday{capitalizeFirstLetter(key)}">{title}</label>
 				</div>
@@ -88,9 +114,14 @@
 		</div>
 
 		<h4>各候補日の選択肢</h4>
-		<textarea class="form-control" id="optionsForEachDate" rows="5"></textarea>
+		<textarea
+			class="form-control"
+			id="optionsForEachDate"
+			rows="5"
+			bind:value={formValues.optionsForEachDate}
+		></textarea>
 
-		<button type="button" class="btn btn-primary icon-button">
+		<button type="button" class="btn btn-orange-primary icon-button">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="16"
@@ -111,9 +142,27 @@
 
 	<div class="result">
 		<h3>結果</h3>
-		<textarea class="form-control" id="result" rows="20"></textarea>
+		<textarea
+			class="form-control"
+			id="result"
+			rows="20"
+			bind:value={result}
+			bind:this={resultTextArea}
+		></textarea>
 
-		<button type="button" class="btn btn-primary icon-button">
+		<button
+			type="button"
+			class="btn btn-orange-primary icon-button"
+			onclick={() => {
+				resultTextArea.select();
+				document.execCommand('copy');
+
+				copied = true;
+				setTimeout(() => {
+					copied = false;
+				}, 5000);
+			}}
+		>
 			{#if copied}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -134,6 +183,7 @@
 						d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"
 					/>
 				</svg>
+				コピー完了！
 			{:else}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -150,9 +200,8 @@
 						d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"
 					/>
 				</svg>
+				コピー！
 			{/if}
-
-			コピー！
 		</button>
 	</div>
 
@@ -162,23 +211,29 @@
 </div>
 
 <style lang="sass">
-	* 
+	@import "../../node_modules/bootstrap/scss/functions"
+	@import '../../node_modules/bootstrap/scss/_variables'
+
+	$orange: $orange-400
+	$light-orange: $orange-200
+
+	*
 		font-family: 'M PLUS Rounded 1c', sans-serif
 		font-weight: 400
 		font-style: normal
 
-	:global(body) 
+	:global(body)
 		display: flex
 		flex-direction: column
 		align-items: center
 
-		/* ドット斜め */
-		background-image: radial-gradient(#fecba1 10%, transparent 20%), radial-gradient(#fecba1 10%, transparent 20%)
+		// ドット斜め
+		background-image: radial-gradient($light-orange 10%, transparent 20%), radial-gradient($light-orange 10%, transparent 20%)
 		background-size: 30px 30px
 		background-position: 0 0, 15px 15px
 		background-attachment: fixed
 
-	.my-container 
+	.my-container
 		display: flex
 		flex-direction: column
 		align-items: center
@@ -192,14 +247,14 @@
 		max-width: 800px
 
 		background-color: white
-	
-	/* 導入部のテキスト */
-	.description 
+
+	/* テキスト */
+	.description
 		display: flex
 		flex-direction: column
 		align-items: center
 
-	h1 
+	h1
 		display: inline
 		margin: 0 0 20px
 		padding: 0 10px
@@ -207,66 +262,82 @@
 		font-weight: 700
 		text-align: center
 
-		background: linear-gradient(transparent 70%, #fecba1 30%)
+		background: linear-gradient(transparent 70%, $light-orange 30%)
 		background-repeat: no-repeat
 		background-size: 0% 100%
 		transition: background-size 1s
-	
-	.marked 
-		background-size: 100% 100%
+		
 
-	p 
+	h3
+		border-bottom: dotted $orange 4px
+		padding: 0 10px
+
+	h4
+		font-size: 1.3rem
+		margin-bottom: -40px
+		
+	p
 		text-align: center
 
-	.ochame 
+	.dash
+		letter-spacing: -1px
+
+	.marked
+		background-size: 100% 100%
+
+
+	.ochame
 		display: inline-block
 		position: relative
-		transform: translateX(12px) translateY(-15px) rotateZ(-22deg)
+		transform: translateX(15px) translateY(-15px) rotateZ(-15deg)
 		margin-top: 25px
 		&::before
 			position: absolute
 			content: ''
 			width: 1px
 			height: 100%
-			background: #fd9843
+			background: $orange
 			transform: translateX(-8px) rotateZ(-30deg)
 		&::after
 			position: absolute
 			content: ''
 			width: 1px
 			height: 100%
-			background: #fd9843
+			background: $orange
 			transform: translateX(5px) rotateZ(30deg)
-	
+
 	/* フォーム */
-	form 
+	.btn-orange-primary
+		--bs-btn-font-weight: 600
+		--bs-btn-color: #{$gray-800}
+		--bs-btn-bg: #{$orange}
+		--bs-btn-border-color: #{$orange}
+		--bs-btn-hover-color: #{$gray-800}
+		--bs-btn-hover-bg: #{shade-color($orange, 5%)}
+		--bs-btn-hover-border-color: #{shade-color($orange, 5%)}
+		--bs-btn-focus-shadow-rgb: #{$light-orange}
+		--bs-btn-active-color: var(--bs-btn-hover-color)
+		--bs-btn-active-bg: #{shade-color($orange, 10%)}
+		--bs-btn-active-border-color: #{shade-color($orange, 10%)}
+
+
+	form
 		display: flex
 		gap: 50px
 		flex-direction: column
 		align-items: center
-	
-	h3 
-		border-bottom: dotted #fecba1 4px
-		padding: 0 10px
 
-	h4 
-		font-size: 1.3rem
-		margin-bottom: -40px
-	
-	.dash 
-		letter-spacing: -1px
-	
 	.period-container,
 	.date-container,
-	.holiday-container 
+	.holiday-container
 		display: flex
 		flex-wrap: wrap
 		align-items: center
 		justify-content: space-evenly
 		gap: 20px
-	
-	.form-control 
-		width: unset /* 100%指定を上書きする */
+
+	.form-control
+		width: unset // 100%指定を上書きする
 
 	.icon-button
 		display: flex
@@ -279,9 +350,9 @@
 		line-height: 1
 		width: 5px
 		height: 5px
-		background: #fecba1
+		background: $orange
 		border-radius: 50%
-		box-shadow: 0 -12px 0 0 #fecba1, 0 12px 0 0 #fecba1
+		box-shadow: 0 -12px 0 0 $orange, 0 12px 0 0 $orange
 
 	/* 結果 */
 	.result
@@ -296,5 +367,5 @@
 
 	/* フッター */
 	.footer a
-			color: #fd9843
+			color: $orange
 </style>
