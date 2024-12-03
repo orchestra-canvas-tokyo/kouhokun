@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "syler.sass-indented",
+    "dbaeumer.vscode-eslint",
+    "svelte.svelte-vscode",
+    "vitest.explorer",
+    "esbenp.prettier-vscode"
+  ]
+}
