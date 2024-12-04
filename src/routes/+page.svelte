@@ -1,58 +1,90 @@
 <script lang="ts">
+	import { convertToDisplayString, dayKeyTitle, getCandidateDates, holidayKeyTitle } from '$lib';
 	import { onMount } from 'svelte';
 
 	const capitalizeFirstLetter = (s: string): string => {
 		return s.substring(0, 1).toUpperCase() + s.substring(1, s.length);
 	};
 
-	const dayKeyTitle = [
-		['monday', '月'],
-		['tuesday', '火'],
-		['wednesday', '水'],
-		['thursday', '木'],
-		['friday', '金'],
-		['saturday', '土'],
-		['sunday', '日']
-	] as const;
+	// フォーム値の初期値を設定
 	const defaultCheckedDayKeys: (typeof dayKeyTitle)[number][0][] = ['saturday', 'sunday'];
-
-	const holidayKeyTitle = [
-		['ignore', '気にしない'],
-		['include', '含める'],
-		['exclude', '除く']
-	] as const;
 	const defaultCheckedHolidayKey: (typeof holidayKeyTitle)[number][0] = 'include';
-
 	const defaultOptionsForEachDate: string[] = ['朝コマ', '昼コマ', '夜コマ'];
-
+	const optionsSepator = '\n';
 	let formValues = $state({
 		period: {
 			startDate: '',
 			endDate: ''
 		},
-		days: defaultCheckedDayKeys,
+		days: defaultCheckedDayKeys as (typeof dayKeyTitle)[number][0][],
 		holiday: defaultCheckedHolidayKey as (typeof holidayKeyTitle)[number][0],
-		optionsForEachDate: defaultOptionsForEachDate.join('\n')
+		optionsForEachDate: defaultOptionsForEachDate.join(optionsSepator)
 	});
+
+	// LocalStorageから値を復元
+	onMount(() => {
+		formValues.period.startDate =
+			localStorage.getItem('formValues.period.startDate') || formValues.period.startDate;
+		formValues.period.endDate =
+			localStorage.getItem('formValues.period.endDate') || formValues.period.endDate;
+		formValues.days = JSON.parse(
+			localStorage.getItem('formValues.days') || JSON.stringify(formValues.days)
+		);
+		formValues.holiday =
+			(localStorage.getItem('formValues.holiday') as (typeof holidayKeyTitle)[number][0]) ||
+			formValues.holiday;
+		formValues.optionsForEachDate =
+			localStorage.getItem('formValues.optionsForEachDate') || formValues.optionsForEachDate;
+	});
+
+	// LocalStorageに値を保存
 	$effect(() => {
-		console.log({ days: JSON.stringify(formValues.days) });
+		localStorage.setItem('formValues.period.startDate', formValues.period.startDate);
+		localStorage.setItem('formValues.period.endDate', formValues.period.endDate);
+		localStorage.setItem('formValues.days', JSON.stringify(formValues.days));
+		localStorage.setItem('formValues.holiday', formValues.holiday);
+		localStorage.setItem('formValues.optionsForEachDate', formValues.optionsForEachDate);
 	});
-	let result = $state('');
 
 	let resultTextArea = $state() as HTMLTextAreaElement;
+	let result = $derived.by(() => {
+		// バリデーション
+		// 入力されていること、大小関係が維持されていること
 
-	let marked = $state(false);
-	let copied = $state(false);
-	onMount(() => {
-		marked = true;
+		// 生成
+		const startDate = new Date(formValues.period.startDate);
+		const endDate = new Date(formValues.period.endDate);
+
+		// 候補日程を抽出
+		const candidateDates = getCandidateDates(
+			startDate,
+			endDate,
+			formValues.days,
+			formValues.holiday
+		);
+
+		// 候補文字列を作成
+		const candidates: string[] = [];
+		candidateDates.forEach((date) => {
+			const displayDateString = convertToDisplayString(date);
+			formValues.optionsForEachDate.split(optionsSepator).forEach((option) => {
+				if (formValues.optionsForEachDate !== '' && option === '') return;
+				candidates.push(displayDateString + ' ' + option);
+			});
+		});
+
+		return candidates.join('\n');
 	});
+
+	// コピーボタンの状態を管理するrune
+	let copied = $state(false);
 </script>
 
 <div class="my-container">
 	<div class="description">
-		<h1 class:marked>候補くん</h1>
+		<h1 class="marking">候補くん</h1>
 
-		<p>出欠表作成サービス「調整さん」の<span class="ochame">非公式</span>姉妹サービス。</p>
+		<p>出欠表作成サービス「調整さん」の<span class="ochame poping">非公式</span>姉妹サービス。</p>
 		<p>日程候補の作成をお手伝いします！</p>
 	</div>
 
@@ -112,8 +144,9 @@
 				</div>
 			{/each}
 		</div>
+		<p class="supplement-text">対応期間：1995&ndash;2025　次回更新：2025年2月</p>
 
-		<h4>各候補日の選択肢</h4>
+		<h4>各日程の選択肢</h4>
 		<textarea
 			class="form-control"
 			id="optionsForEachDate"
@@ -121,7 +154,7 @@
 			bind:value={formValues.optionsForEachDate}
 		></textarea>
 
-		<button type="button" class="btn btn-orange-primary icon-button">
+		<!-- <button type="button" class="btn btn-orange-primary icon-button">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="16"
@@ -135,19 +168,14 @@
 				/>
 			</svg>
 			<span>候補を生成！</span>
-		</button>
+		</button> -->
 	</form>
 
 	<span class="vertical-dots"></span>
 
 	<div class="result">
-		<h3>結果</h3>
-		<textarea
-			class="form-control"
-			id="result"
-			rows="20"
-			bind:value={result}
-			bind:this={resultTextArea}
+		<h3 id="result-header">結果</h3>
+		<textarea class="form-control" id="result" rows="20" value={result} bind:this={resultTextArea}
 		></textarea>
 
 		<button
@@ -216,11 +244,19 @@
 
 	$orange: $orange-400
 	$light-orange: $orange-200
+	$lighter-orange: $orange-100
 
 	*
 		font-family: 'M PLUS Rounded 1c', sans-serif
 		font-weight: 400
 		font-style: normal
+			
+		& ::selection,
+		input::-webkit-datetime-edit-day-field:focus,
+		input::-webkit-datetime-edit-month-field:focus,
+		input::-webkit-datetime-edit-year-field:focus 
+			color: black
+			background-color: $lighter-orange
 
 	:global(body)
 		display: flex
@@ -256,17 +292,11 @@
 
 	h1
 		display: inline
-		margin: 0 0 20px
+		margin: 60px 0 20px
 		padding: 0 10px
 
 		font-weight: 700
 		text-align: center
-
-		background: linear-gradient(transparent 70%, $light-orange 30%)
-		background-repeat: no-repeat
-		background-size: 0% 100%
-		transition: background-size 1s
-		
 
 	h3
 		border-bottom: dotted $orange 4px
@@ -281,16 +311,28 @@
 
 	.dash
 		letter-spacing: -1px
+	
+	.supplement-text
+		margin-top: -40px
+		font-size: small
+		color: grey
 
-	.marked
-		background-size: 100% 100%
+	.marking
+		background: linear-gradient(transparent 70%, $light-orange 30%)
+		background-repeat: no-repeat
+		animation: .5s ease-out 0s 1 mark
 
+	@keyframes mark
+		from
+			background-size: 0% 100%
+		to
+			background-size: 100% 100%
 
 	.ochame
 		display: inline-block
 		position: relative
-		transform: translateX(15px) translateY(-15px) rotateZ(-15deg)
 		margin-top: 25px
+		transform: translateX(15px) translateY(-15px) rotateZ(-15deg)
 		&::before
 			position: absolute
 			content: ''
@@ -305,21 +347,30 @@
 			height: 100%
 			background: $orange
 			transform: translateX(5px) rotateZ(30deg)
+		
+	.poping
+		animation: .25s linear 1s 2 pop
+	
+	@keyframes pop
+		0%
+			transform: translateX(15px) translateY(-15px) rotateZ(-15deg)
+		50%
+			transform: translateX(15px) translateY(-20px) rotateZ(-15deg)
+		0%
+			transform: translateX(15px) translateY(-15px) rotateZ(-15deg)
 
 	/* フォーム */
 	.btn-orange-primary
-		--bs-btn-font-weight: 600
 		--bs-btn-color: #{$gray-800}
-		--bs-btn-bg: #{$orange}
-		--bs-btn-border-color: #{$orange}
+		--bs-btn-bg: #{$light-orange}
+		--bs-btn-border-color: #{$light-orange}
 		--bs-btn-hover-color: #{$gray-800}
-		--bs-btn-hover-bg: #{shade-color($orange, 5%)}
-		--bs-btn-hover-border-color: #{shade-color($orange, 5%)}
-		--bs-btn-focus-shadow-rgb: #{$light-orange}
+		--bs-btn-hover-bg: #{$lighter-orange}
+		--bs-btn-hover-border-color: #{$light-orange}
+		--bs-btn-focus-shadow-rgb: #{$lighter-orange}
 		--bs-btn-active-color: var(--bs-btn-hover-color)
-		--bs-btn-active-bg: #{shade-color($orange, 10%)}
-		--bs-btn-active-border-color: #{shade-color($orange, 10%)}
-
+		--bs-btn-active-bg: #{$lighter-orange}
+		--bs-btn-active-border-color: #{$light-orange}
 
 	form
 		display: flex
@@ -339,10 +390,19 @@
 	.form-control
 		width: unset // 100%指定を上書きする
 
-	.icon-button
-		display: flex
-		align-items: center
-		gap: 10px
+
+	.form-control:focus,
+	.form-check-input:focus
+		border-color: $light-orange
+		box-shadow: 0 0 0 .25rem $lighter-orange
+	
+	
+	.form-check-input:checked
+		background-color: $orange
+		border-color: $orange
+
+	.form-switch .form-check-input:focus
+		--bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffe5d0'/%3e%3c/svg%3e")
 
 	.vertical-dots
 		display: inline-block
