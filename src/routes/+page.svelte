@@ -426,6 +426,8 @@
 		max-width: calc(100dvw - 2 * 2 * 40px)
 
 	/* フッター */
-	.footer a
+	.footer
+		font-size: clamp(.5rem, 3.4dvw, .8rem)
+		& a
 			color: $orange
 </style>
