@@ -340,6 +340,7 @@
 	
 	.supplement-text
 		display: flex
+		flex-wrap: wrap
 		gap: 15px
 		margin-top: -40px
 		font-size: small
