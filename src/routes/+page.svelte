@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { convertToDisplayString, dayKeyTitle, getCandidateDates, holidayKeyTitle } from '$lib';
 	import { onMount } from 'svelte';
+	import oct from './oct.svg';
+	import { MetaTags } from 'svelte-meta-tags';
 
 	const capitalizeFirstLetter = (s: string): string => {
 		return s.substring(0, 1).toUpperCase() + s.substring(1, s.length);
@@ -80,12 +82,22 @@
 	let copied = $state(false);
 </script>
 
+<MetaTags
+	title="候補くん"
+	description="出欠表作成サービス「調整さん」の日程候補作成をお手伝いします！"
+	canonical="https://kouhokun.orch-canvas.tokyo/"
+	twitter={{
+		cardType: 'summary'
+	}}
+/>
+
 <div class="my-container">
 	<div class="description">
 		<h1 class="marking">候補くん</h1>
 
 		<p>出欠表作成サービス「調整さん」の<span class="ochame poping">非公式</span>姉妹サービス。</p>
-		<p>日程候補の作成をお手伝いします！</p>
+		<p>「この期間の土日祝日、午後か夜で調整をしたい……」</p>
+		<p>そんなアナタの日程候補作成をお手伝いします！</p>
 	</div>
 
 	<form>
@@ -153,29 +165,19 @@
 			rows="5"
 			bind:value={formValues.optionsForEachDate}
 		></textarea>
-
-		<!-- <button type="button" class="btn btn-orange-primary icon-button">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				fill="currentColor"
-				class="bi bi-magic"
-				viewBox="0 0 16 16"
-			>
-				<path
-					d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707zM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707zm-.621 2.5a.5.5 0 1 0 0-1H4.843a.5.5 0 1 0 0 1zm8.485 0a.5.5 0 1 0 0-1h-1.829a.5.5 0 0 0 0 1zM13.293 10A.5.5 0 1 0 14 9.293L12.707 8a.5.5 0 1 0-.707.707zM9.5 11.157a.5.5 0 0 0 1 0V9.328a.5.5 0 0 0-1 0zm1.854-5.097a.5.5 0 0 0 0-.706l-.708-.708a.5.5 0 0 0-.707 0L8.646 5.94a.5.5 0 0 0 0 .707l.708.708a.5.5 0 0 0 .707 0l1.293-1.293Zm-3 3a.5.5 0 0 0 0-.706l-.708-.708a.5.5 0 0 0-.707 0L.646 13.94a.5.5 0 0 0 0 .707l.708.708a.5.5 0 0 0 .707 0z"
-				/>
-			</svg>
-			<span>候補を生成！</span>
-		</button> -->
 	</form>
 
 	<span class="vertical-dots"></span>
 
 	<div class="result">
 		<h3 id="result-header">結果</h3>
-		<textarea class="form-control" id="result" rows="20" value={result} bind:this={resultTextArea} readonly
+		<textarea
+			class="form-control"
+			id="result"
+			rows="20"
+			value={result}
+			bind:this={resultTextArea}
+			readonly
 		></textarea>
 
 		<button
@@ -233,18 +235,35 @@
 		</button>
 	</div>
 
-	<div class="footer">
-		Powered by <a href="https://www.orch-canvas.tokyo/">Orchestra Canvas Tokyo</a>
+	<div class="footer-container">
+		<div class="footer-row">
+			<span>Powered by</span>
+			<a href="https://www.orch-canvas.tokyo/">
+				<img src={oct} alt="Orchestra Canvas Tokyo" />
+			</a>
+		</div>
+		<a href="https://github.com/orchestra-canvas-tokyo/kouhokun/tree/main" class="footer-row">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				fill="currentColor"
+				class="bi bi-github"
+				viewBox="0 0 16 16"
+			>
+				<path
+					d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+				/>
+			</svg>
+			<span>orchestra-canvas-tokyo/kouhokun</span>
+		</a>
 	</div>
 </div>
 
 <style lang="sass">
-	@import "../../node_modules/bootstrap/scss/functions"
-	@import '../../node_modules/bootstrap/scss/_variables'
-
-	$orange: $orange-400
-	$light-orange: $orange-200
-	$lighter-orange: $orange-100
+	$orange: #fd9843
+	$light-orange: #fecba1
+	$lighter-orange: #ffe5d0
 
 	*
 		font-family: 'M PLUS Rounded 1c', sans-serif
@@ -361,10 +380,8 @@
 
 	/* フォーム */
 	.btn-orange-primary
-		--bs-btn-color: #{$gray-800}
 		--bs-btn-bg: #{$light-orange}
 		--bs-btn-border-color: #{$light-orange}
-		--bs-btn-hover-color: #{$gray-800}
 		--bs-btn-hover-bg: #{$lighter-orange}
 		--bs-btn-hover-border-color: #{$light-orange}
 		--bs-btn-focus-shadow-rgb: #{$lighter-orange}
@@ -390,7 +407,6 @@
 	.form-control
 		width: unset // 100%指定を上書きする
 
-
 	.form-control:focus,
 	.form-check-input:focus
 		border-color: $light-orange
@@ -403,6 +419,11 @@
 
 	.form-switch .form-check-input:focus
 		--bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffe5d0'/%3e%3c/svg%3e")
+
+	textarea,
+	textarea.form-control // .form-control指定を上書きできるよう
+		width: 250px
+		max-width: calc(100dvw - 2 * 2 * 40px)
 
 	.vertical-dots
 		display: inline-block
@@ -421,13 +442,21 @@
 		flex-direction: column
 		align-items: center
 
-	#result
-		width: 500px
-		max-width: calc(100dvw - 2 * 2 * 40px)
-
 	/* フッター */
-	.footer
+	.footer-container
+		display: flex
+		flex-direction: column
+		align-items: center
+		gap: 15px
 		font-size: clamp(.5rem, 3.4dvw, .8rem)
+		filter: opacity(60%)
 		& a
-			color: $orange
+			color: black
+			text-decoration: unset
+		& img
+			height: 2em
+	.footer-row
+		display: flex
+		align-items: center
+		gap: .5em
 </style>
