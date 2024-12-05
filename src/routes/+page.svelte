@@ -175,7 +175,7 @@
 
 	<div class="result">
 		<h3 id="result-header">結果</h3>
-		<textarea class="form-control" id="result" rows="20" value={result} bind:this={resultTextArea}
+		<textarea class="form-control" id="result" rows="20" value={result} bind:this={resultTextArea} readonly
 		></textarea>
 
 		<button
