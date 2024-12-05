@@ -32,7 +32,7 @@
 			localStorage.getItem('formValues.days') || JSON.stringify(formValues.days)
 		);
 		formValues.excludeHoliday =
-			!!localStorage.getItem('formValues.excludeHoliday') || formValues.excludeHoliday;
+			localStorage.getItem('formValues.excludeHoliday') === 'true' || formValues.excludeHoliday;
 		formValues.optionsForEachDate =
 			localStorage.getItem('formValues.optionsForEachDate') || formValues.optionsForEachDate;
 	});
