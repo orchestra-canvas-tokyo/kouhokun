@@ -78,14 +78,24 @@
 
 	// コピーボタンの状態を管理するrune
 	let copied = $state(false);
+
+	const meta = {
+		title: '候補くん',
+		description: '出欠表作成サービス「調整さん」の日程候補作成をお手伝いします！',
+		canonicalUrl: 'https://kouhokun.orch-canvas.tokyo/'
+	};
 </script>
 
 <MetaTags
-	title="候補くん"
-	description="出欠表作成サービス「調整さん」の日程候補作成をお手伝いします！"
-	canonical="https://kouhokun.orch-canvas.tokyo/"
+	title={meta.title}
+	description={meta.description}
+	canonical={meta.canonicalUrl}
 	twitter={{
-		cardType: 'summary'
+		cardType: 'summary',
+		title: meta.title,
+		description: meta.description,
+		image: 'https://kouhokun.orch-canvas.tokyo/web-app-manifest-512x512.png',
+		imageAlt: '候補くんのアイコン'
 	}}
 />
 
