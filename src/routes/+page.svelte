@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { convertToDisplayString, dayKeyTitle, getCandidateDates, holidayKeyTitle } from '$lib';
+	import { convertToDisplayString, dayKeyTitle, getCandidateDates } from '$lib';
 	import { onMount } from 'svelte';
 	import oct from './oct.svg';
 	import { MetaTags } from 'svelte-meta-tags';
 
-	const capitalizeFirstLetter = (s: string): string => {
-		return s.substring(0, 1).toUpperCase() + s.substring(1, s.length);
-	};
-
 	// フォーム値の初期値を設定
-	const defaultCheckedDayKeys: (typeof dayKeyTitle)[number][0][] = ['saturday', 'sunday'];
-	const defaultCheckedHolidayKey: (typeof holidayKeyTitle)[number][0] = 'include';
+	const defaultCheckedDayKeys: (typeof dayKeyTitle)[number][0][] = [
+		'saturday',
+		'sunday',
+		'holiday'
+	];
 	const defaultOptionsForEachDate: string[] = ['朝コマ', '昼コマ', '夜コマ'];
 	const optionsSepator = '\n';
 	let formValues = $state({
@@ -19,7 +18,7 @@
 			endDate: ''
 		},
 		days: defaultCheckedDayKeys as (typeof dayKeyTitle)[number][0][],
-		holiday: defaultCheckedHolidayKey as (typeof holidayKeyTitle)[number][0],
+		excludeHoliday: false,
 		optionsForEachDate: defaultOptionsForEachDate.join(optionsSepator)
 	});
 
@@ -32,9 +31,8 @@
 		formValues.days = JSON.parse(
 			localStorage.getItem('formValues.days') || JSON.stringify(formValues.days)
 		);
-		formValues.holiday =
-			(localStorage.getItem('formValues.holiday') as (typeof holidayKeyTitle)[number][0]) ||
-			formValues.holiday;
+		formValues.excludeHoliday =
+			!!localStorage.getItem('formValues.excludeHoliday') || formValues.excludeHoliday;
 		formValues.optionsForEachDate =
 			localStorage.getItem('formValues.optionsForEachDate') || formValues.optionsForEachDate;
 	});
@@ -44,7 +42,7 @@
 		localStorage.setItem('formValues.period.startDate', formValues.period.startDate);
 		localStorage.setItem('formValues.period.endDate', formValues.period.endDate);
 		localStorage.setItem('formValues.days', JSON.stringify(formValues.days));
-		localStorage.setItem('formValues.holiday', formValues.holiday);
+		localStorage.setItem('formValues.excludeHoliday', formValues.excludeHoliday.toString());
 		localStorage.setItem('formValues.optionsForEachDate', formValues.optionsForEachDate);
 	});
 
@@ -62,7 +60,7 @@
 			startDate,
 			endDate,
 			formValues.days,
-			formValues.holiday
+			formValues.excludeHoliday
 		);
 
 		// 候補文字列を作成
@@ -99,6 +97,8 @@
 		<p>「この期間の土日祝日、午後か夜で調整をしたい……」</p>
 		<p>そんなアナタの日程候補作成をお手伝いします！</p>
 	</div>
+
+	<span class="vertical-dots"></span>
 
 	<form>
 		<h3>条件</h3>
@@ -139,24 +139,22 @@
 			{/each}
 		</div>
 
-		<h4>祝日を<span class="dash">――</span></h4>
-		<div class="holiday-container">
-			{#each holidayKeyTitle as [key, title]}
-				<div class="form-check">
-					<input
-						class="form-check-input"
-						type="radio"
-						name="holiday"
-						id="holiday{capitalizeFirstLetter(key)}"
-						value={key}
-						checked={defaultCheckedHolidayKey === key}
-						bind:group={formValues.holiday}
-					/>
-					<label class="form-check-label" for="holiday{capitalizeFirstLetter(key)}">{title}</label>
-				</div>
-			{/each}
+		<div class="excludeHoliday-container">
+			<div class="form-check">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					id="excludeHoliday"
+					name="excludeHoliday"
+					bind:checked={formValues.excludeHoliday}
+				/>
+				<label class="form-check-label" for="excludeHoliday"> 祝日を候補から除く</label>
+			</div>
 		</div>
-		<p class="supplement-text">対応期間：1995&ndash;2025&nbsp;次回更新：2025年2月</p>
+		<p class="supplement-text">
+			<span>対応期間: 1995&ndash;2025</span>
+			<span>次回更新: 2025年2月</span>
+		</p>
 
 		<h4>各日程の選択肢</h4>
 		<textarea
@@ -234,6 +232,8 @@
 			{/if}
 		</button>
 	</div>
+
+	<span class="vertical-dots"></span>
 
 	<div class="footer-container">
 		<div class="footer-row">
@@ -327,11 +327,10 @@
 		
 	p
 		text-align: center
-
-	.dash
-		letter-spacing: -1px
 	
 	.supplement-text
+		display: flex
+		gap: 15px
 		margin-top: -40px
 		font-size: small
 		color: grey
@@ -339,7 +338,7 @@
 	.marking
 		background: linear-gradient(transparent 70%, $light-orange 30%)
 		background-repeat: no-repeat
-		animation: .5s ease-out 0s 1 mark
+		animation: .5s ease-out .5s 1 mark
 
 	@keyframes mark
 		from
@@ -368,7 +367,7 @@
 			transform: translateX(5px) rotateZ(30deg)
 		
 	.poping
-		animation: .25s linear 1s 2 pop
+		animation: .25s linear 1.5s 2 pop
 	
 	@keyframes pop
 		0%
@@ -397,12 +396,15 @@
 
 	.period-container,
 	.date-container,
-	.holiday-container
+	.excludeHoliday-container
 		display: flex
 		flex-wrap: wrap
 		align-items: center
 		justify-content: space-evenly
 		gap: 20px
+	
+	.excludeHoliday-container
+		margin-top: -40px
 
 	.form-control
 		width: unset // 100%指定を上書きする

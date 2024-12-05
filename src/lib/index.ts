@@ -7,20 +7,15 @@ export const dayKeyTitle = [
 	['thursday', '木'],
 	['friday', '金'],
 	['saturday', '土'],
-	['sunday', '日']
-] as const;
-
-export const holidayKeyTitle = [
-	['ignore', '気にしない'],
-	['include', '含める'],
-	['exclude', '除く']
+	['sunday', '日'],
+	['holiday', '祝']
 ] as const;
 
 export const getCandidateDates = (
 	startDate: Date,
 	endDate: Date,
 	days: (typeof dayKeyTitle)[number][0][],
-	holiday: (typeof holidayKeyTitle)[number][0]
+	excludeHoliday: boolean
 ): Date[] => {
 	const result: Date[] = [];
 
@@ -40,8 +35,8 @@ export const getCandidateDates = (
 
 		let includeFlag = false;
 		if (days.includes(currentDay)) includeFlag = true;
-		if (isHoliday && holiday === 'include') includeFlag = true;
-		if (isHoliday && holiday === 'exclude') includeFlag = false;
+		if (days.includes('holiday') && isHoliday) includeFlag = true;
+		if (isHoliday && excludeHoliday) includeFlag = false;
 
 		if (includeFlag) result.push(new Date(d));
 	}
