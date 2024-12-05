@@ -156,7 +156,7 @@
 				</div>
 			{/each}
 		</div>
-		<p class="supplement-text">対応期間：1995&ndash;2025　次回更新：2025年2月</p>
+		<p class="supplement-text">対応期間：1995&ndash;2025&nbsp;次回更新：2025年2月</p>
 
 		<h4>各日程の選択肢</h4>
 		<textarea
