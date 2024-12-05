@@ -1,38 +1,22 @@
-# sv
+# 候補くん
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+出欠表作成サービス「調整さん」の＼非公式／姉妹サービス。
+「この期間の土日祝日、午後か夜で調整をしたい……」
+そんなアナタの日程候補作成をお手伝いします！
 
-## Creating a project
+Issue作成、PR投稿など大歓迎です！
 
-If you're seeing this, you've probably already done this step. Congrats!
+## 環境構築
 
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
+```shell
+npm run install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+## フォーマット
 
-To create a production version of your app:
+huskyおよびGitHub ActionsによるCI(`npm run lint`)が走ります。
 
-```bash
-npm run build
+```shell
+npm run format
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
