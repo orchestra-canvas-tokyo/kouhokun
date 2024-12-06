@@ -49,7 +49,7 @@
 	let resultTextArea = $state() as HTMLTextAreaElement;
 	let result = $derived.by(() => {
 		// バリデーション
-		// 入力されていること、大小関係が維持されていること
+		if (formValues.period.startDate > formValues.period.endDate) return '';
 
 		// 生成
 		const startDate = new Date(formValues.period.startDate);
@@ -241,6 +241,8 @@
 				コピー！
 			{/if}
 		</button>
+
+		<a href="https://chouseisan.com/">「調整さん」へ</a>
 	</div>
 
 	<span class="vertical-dots"></span>
@@ -338,10 +340,14 @@
 	p
 		text-align: center
 	
+	a
+		color: $orange
+	
 	.supplement-text
 		display: flex
+		gap: 0 15px
+		justify-content: center
 		flex-wrap: wrap
-		gap: 15px
 		margin-top: -40px
 		font-size: small
 		color: grey
@@ -412,7 +418,7 @@
 		flex-wrap: wrap
 		align-items: center
 		justify-content: space-evenly
-		gap: 20px
+		gap: 10px 20px
 	
 	.excludeHoliday-container
 		margin-top: -40px
@@ -460,7 +466,7 @@
 		display: flex
 		flex-direction: column
 		align-items: center
-		gap: 15px
+		gap: 20px
 		font-size: clamp(.5rem, 3.4dvw, .8rem)
 		filter: opacity(60%)
 		& a
@@ -468,8 +474,12 @@
 			text-decoration: unset
 		& img
 			height: 2em
+		& span
+			text-align: center
 	.footer-row
 		display: flex
 		align-items: center
-		gap: .5em
+		justify-content: center
+		flex-wrap: wrap
+		gap: 0 .5em
 </style>
