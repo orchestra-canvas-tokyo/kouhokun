@@ -162,7 +162,7 @@
 			</div>
 		</div>
 		<p class="supplement-text">
-			<span>対応期間: 1995&ndash;2025</span>
+			<span>祝日対応期間: 1995&ndash;2025</span>
 			<span>次回更新: 2025年2月</span>
 		</p>
 
