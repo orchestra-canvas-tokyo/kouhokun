@@ -94,7 +94,7 @@
 		cardType: 'summary',
 		title: meta.title,
 		description: meta.description,
-		image: 'https://kouhokun.orch-canvas.tokyo/web-app-manifest-512x512.png',
+		image: 'https://kouhokun.orch-canvas.tokyo/web-app-manifest-512x512.png?v=1',
 		imageAlt: '候補くんのアイコン'
 	}}
 />
