@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { dayKeyTitle, getCandidateDates, convertToDisplayString } from './index'; // モジュール名を適切に変更してください。
+import { getCandidateDates, convertToDisplayString } from './index'; // モジュール名を適切に変更してください。
 
 vi.mock('./syukujitsu.csv?raw', () => {
 	return {
