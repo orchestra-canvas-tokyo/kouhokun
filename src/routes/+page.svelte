@@ -11,7 +11,7 @@
 		'holiday'
 	];
 	const defaultOptionsForEachDate: string[] = ['朝コマ', '昼コマ', '夜コマ'];
-	const optionsSepator = '\n';
+	const optionsSeparator = '\n';
 	let formValues = $state({
 		period: {
 			startDate: '',
@@ -19,7 +19,7 @@
 		},
 		days: defaultCheckedDayKeys as (typeof dayKeyTitle)[number][0][],
 		excludeHoliday: false,
-		optionsForEachDate: defaultOptionsForEachDate.join(optionsSepator)
+		optionsForEachDate: defaultOptionsForEachDate.join(optionsSeparator)
 	});
 
 	// LocalStorageから値を復元
@@ -67,7 +67,7 @@
 		const candidates: string[] = [];
 		candidateDates.forEach((date) => {
 			const displayDateString = convertToDisplayString(date);
-			formValues.optionsForEachDate.split(optionsSepator).forEach((option) => {
+			formValues.optionsForEachDate.split(optionsSeparator).forEach((option) => {
 				if (formValues.optionsForEachDate !== '' && option === '') return;
 				candidates.push(displayDateString + ' ' + option);
 			});
